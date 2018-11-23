@@ -41,7 +41,7 @@ func FetchRepo(username string) ([]*github.Repository, error) {
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "66c1b88824ef1d0fb65c3a1370c5767b7ff4e5cd"},
+		&oauth2.Token{AccessToken: "token"},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
@@ -56,12 +56,11 @@ func main() {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
-	s := ""
 
-	for i := 1; i < len(repos); i++ {
+	// for i := 1; i < len(repos); i++ {
 
-		s = s + "repo " + ": " + repos[i].GetFullName()
-	}
+	// 	s = s + "repo " + ": " + repos[i].GetFullName()
+	// }
 
 	// Call html page handler.
 	mux.HandleFunc("/", website)
@@ -69,7 +68,15 @@ func main() {
 	r := gin.Default()
 
 	r.GET("/someJSON", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{s: http.StatusOK})
+
+		var msg struct {
+			Repos []string `json:"repos"`
+		}
+		for i := 1; i < len(repos); i++ {
+			msg.Repos[i] = repos[i].GetName()
+		}
+
+		c.JSON(http.StatusOK, msg)
 	})
 	// Open port for web server.
 	port := ":8000"
