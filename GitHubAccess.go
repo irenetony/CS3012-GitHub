@@ -37,24 +37,53 @@ func website(w http.ResponseWriter, r *http.Request) {
 }
 
 //FetchRepo gets all the organisations that the user speccified is a member of.
-func FetchRepo(username string) ([]*github.Repository, error) {
+func FetchRepo(username string) (int, error) {
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "tocken"},
+		&oauth2.Token{AccessToken: "token"},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
-	//orgs, _, err := client.Organizations.List(context.Background(), username, nil)
+
 	repos, _, err := client.Repositories.List(ctx, username, nil)
-	return repos, err
+	numOfRepos := len(repos)
+	return numOfRepos, err
+}
+
+//FetchFollowing gets the users that the user specified follows.
+func FetchFollowing(username string) ([]*github.User, error) {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: "token"},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+	//s := ""
+	users, _, err := client.Users.ListFollowing(ctx, username, nil)
+	for i := 0; i < len(users); i++ {
+		fmt.Printf("%v", users[i].GetLogin())
+	}
+
+	return users, err
 }
 func main() {
 	mux := http.NewServeMux()
-	repos, err := FetchRepo("irenetony")
+	followingUsers, err := FetchFollowing("irenetony")
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
+	}
+	var allRepos []int
+
+	for i := 0; i < len(followingUsers); i++ {
+		repoNum, err := FetchRepo(followingUsers[i].GetLogin())
+		allRepos = append(allRepos, repoNum)
+
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
 	}
 
 	// Call html page handler.
@@ -65,10 +94,12 @@ func main() {
 	r.GET("/dataJSON", func(c *gin.Context) {
 
 		var msg struct {
-			Repo []string `json:"repos"`
+			Repo []int    `json:"repos"`
+			User []string `json:"user"`
 		}
-		for i := 0; i < len(repos); i++ {
-			msg.Repo = append(msg.Repo, repos[i].GetName())
+		for i := 0; i < len(allRepos); i++ {
+			msg.Repo = append(msg.Repo, allRepos[i])
+			msg.User = append(msg.User, followingUsers[i].GetLogin())
 		}
 
 		c.JSON(http.StatusOK, msg)
