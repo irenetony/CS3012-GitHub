@@ -1,8 +1,8 @@
-{{define "website"}}
-
 <!DOCTYPE html>
 <html lang="en">
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src='https://d3js.org/d3.v4.min.js'></script>
+  
   <body>
 
     <div class="container">
@@ -10,10 +10,18 @@
       <div class="starter-template">
         <h1>SWENG Visualisation</h1>
         <p class="lead">Testing <strong>DISPLAY</strong> page</p>
+        <p id = "showData"></p>
+        
       </div>
 
     </div>
-
+    <script>
+            $(document).ready(function(){
+                $.get("http://localhost:9000/dataJSON", function(data, status){
+                    var data = JSON.parse(JSON.stringify(data));
+                    document.getElementById("showData").innerHTML = data.repos + "\r\n" + data.user;
+                }); 
+            });
+        </script>  
   </body>
 </html>
-{{end}}
