@@ -38,32 +38,31 @@ func FetchFollowing(username string) ([]*github.User, error) {
 	return users, err
 }
 func main() {
-
-	followingUsers, err := FetchFollowing("irenetony")
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return
-	}
-	var allRepos []int
-
-	for i := 0; i < len(followingUsers); i++ {
-		repoNum, err := FetchRepo(followingUsers[i].GetLogin())
-		allRepos = append(allRepos, repoNum)
-
-		if err != nil {
-			fmt.Printf("Error: %v\n", err)
-			return
-		}
-	}
-
 	r := gin.Default()
+	userName := ""
 
 	r.LoadHTMLFiles("tpl/website.html")
 	r.GET("/web", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "website.html", gin.H{"title": "Main website"})
 	})
-	r.GET("/dataJSON", func(c *gin.Context) {
+	r.POST("/post", func(c *gin.Context) {
+		userName = c.PostForm("name")
+		followingUsers, err := FetchFollowing(userName)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
+		var allRepos []int
 
+		for i := 0; i < len(followingUsers); i++ {
+			repoNum, err := FetchRepo(followingUsers[i].GetLogin())
+			allRepos = append(allRepos, repoNum)
+
+			if err != nil {
+				fmt.Printf("Error: %v\n", err)
+				return
+			}
+		}
 		var msg struct {
 			Repo []int    `json:"repos"`
 			User []string `json:"user"`
@@ -75,6 +74,7 @@ func main() {
 
 		c.JSON(http.StatusOK, msg)
 	})
+
 	// Open port for web server.
 	// languages the repos are in
 	port := ":9000"
