@@ -19,10 +19,23 @@ func FetchRepo(username string) (int, error) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
-
-	repos, _, err := client.Repositories.List(ctx, username, nil)
-	numOfRepos := len(repos)
-	return numOfRepos, err
+	opt := &github.RepositoryListOptions{
+		ListOptions: github.ListOptions{PerPage: 100},
+	}
+	var allRepos []*github.Repository
+	for {
+		repos, resp, err := client.Repositories.List(ctx, username, opt)
+		if err != nil {
+			return 0, err
+		}
+		allRepos = append(allRepos, repos...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+	}
+	numOfRepos := len(allRepos)
+	return numOfRepos, nil
 }
 
 //FetchFollowing gets the users that the user specified follows.
@@ -33,9 +46,25 @@ func FetchFollowing(username string) ([]*github.User, error) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
+	opt := &github.ListOptions{
+		PerPage: 100,
+	}
 	//s := ""
-	users, _, err := client.Users.ListFollowing(ctx, username, nil)
-	return users, err
+	var users []*github.User
+	for {
+		user, resp, err := client.Users.ListFollowing(ctx, username, opt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user...)
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
+
+	}
+
+	return users, nil
 }
 func main() {
 	r := gin.Default()
@@ -56,6 +85,7 @@ func main() {
 
 		for i := 0; i < len(followingUsers); i++ {
 			repoNum, err := FetchRepo(followingUsers[i].GetLogin())
+			//fmt.Println(followingUsers[i].GetLogin())
 			allRepos = append(allRepos, repoNum)
 
 			if err != nil {
@@ -63,6 +93,7 @@ func main() {
 				return
 			}
 		}
+		//fmt.Println(len(followingUsers) + len(allRepos))
 		var msg struct {
 			Repo []int    `json:"repos"`
 			User []string `json:"user"`
