@@ -19,5 +19,5 @@ This program will take a github username and display the all the users that user
 - If you want to enter another username, reload the website and search for another valid github user.
 
 ## Built With
-- [Go-github](https://github.com/google/go-github): API used to access the github users' data.
+- [Go-github](https://github.com/google/go-github): API used to access the github user's data.
 - [Gin](https://github.com/gin-gonic/gin): A HTTP web framework written in Go.
