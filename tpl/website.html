@@ -59,8 +59,8 @@
     <div class="container">
 
         <div class="starter-template">
-            <h1>SWENG Visualisation</h1>
-            <label for="username">UserName</label>
+            <h1>Software Engineering Visualisation</h1>
+            <label for="username">Enter a UserName</label>
             <input type="text" id="userName" name="username" placeholder="Enter Username..">
             <button type="submit" onclick="userName()">Submit</button>
             <p class="lead">Number of Repos of users that <strong><span id="showData"></span></strong> follows:</p>
@@ -115,6 +115,7 @@
                 left: 150
             };
 
+            var color = '#46d4e1'
             var width = 1000 - margin.left - margin.right,
                 height = (30*data.length) - margin.top - margin.bottom;
 
@@ -158,7 +159,10 @@
                 .attr("y", function (d) {
                     return y(d.name);
                 })
-                .attr("fill",'#46d4e1')
+                .attr("fill", "#ffd7d5")
+                .attr("opacity", function (d) {
+                    return d / 10;
+                })
                 .attr("height", y.rangeBand())
                 .attr("x", 0)
                 .attr("width", function (d) {
