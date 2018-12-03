@@ -21,3 +21,4 @@ This program will take a github username and display the all the users that user
 ## Built With
 - [Go-github](https://github.com/google/go-github): API used to access the github user's data.
 - [Gin](https://github.com/gin-gonic/gin): A HTTP web framework written in Go.
+- [D3.js](https://d3js.org/): Used for data visualisation.
