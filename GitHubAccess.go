@@ -15,7 +15,7 @@ func FetchRepo(username string) (int, error) {
 
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "c3073e3bf454522a59eb849bce3fb8d58bdaa457"},
+		&oauth2.Token{AccessToken: "token"},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
@@ -42,7 +42,7 @@ func FetchRepo(username string) (int, error) {
 func FetchFollowing(username string) ([]*github.User, error) {
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: "c3073e3bf454522a59eb849bce3fb8d58bdaa457"},
+		&oauth2.Token{AccessToken: "token"},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
